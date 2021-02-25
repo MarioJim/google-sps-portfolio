@@ -1,19 +1,99 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>My Portfolio</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js"></script>
-  </head>
-  <body>
-    <div id="content">
-      <h1>My Portfolio</h1>
-      <p>This is my portfolio.</p>
-      <p>Click <a href="/hello">here</a> to see content created by server code.</p>
-      <p>Click here to get a random message:</p>
-      <button onclick="addRandomGreeting()">Hello</button>
-      <div id="greeting-container"></div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Mario Jiménez's portfolio">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js"></script>
+  <title>Mario's Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <p>my portfolio</p>
+</header>
+<div id="content">
+  <div id="side-info">
+    <img
+      src="https://avatars.githubusercontent.com/u/42523716?s=200"
+      width="200"
+      height="200"
+      alt="Profile pic"/>
+    <h1>Mario Jiménez</h1>
+    <div id="social-icons">
+      <div>
+        <img src="images/github.svg" alt="GitHub icon"/>
+        <a href="https://github.com/MarioJim" target="_blank"><p>github.com/MarioJim</p></a>
+      </div>
+      <div>
+        <img src="images/linkedin.svg" alt="LinkedIn icon"/>
+        <a href="https://linkedin.com/in/mariojim" target="_blank"><p>linkedin.com/in/mariojim</p>
+        </a>
+      </div>
     </div>
-  </body>
+  </div>
+  <div id="about-me">
+    <h2>About Me</h2>
+    <p>Hi! I'm a junior at Tec de Monterrey in Mexico City. I'm majoring in Computer Science, but my
+      career feels more like Software Engineering.</p>
+    <p>I used to live with my grandpa in Mexico City, but during the pandemic I've returned to my
+      parent's house in Chiapas.</p>
+    <p>I'm a Linux enthusiast, my favorite distro (and what I use everyday) is Arch Linux
+      because of the awesome package manager and the general programming experience.</p>
+    <h2>Current projects</h2>
+    <h3>A music client for touchégg</h3>
+    <p>One thing I really missed from using Windows was the support for gestures on my laptop's
+      trackpad, so about a month ago I found this program called touchégg that collected the
+      gestures detected by the trackpad's driver and not only executed some action of you
+      choosing, but also showed some cool animations.</p>
+    <p>I really liked the idea, so I'm making an app that receives the gestures and displays the
+      current volume and information about the music currently playing.</p>
+    <p>For now it looks like this:</p>
+    <img src="images/music-client-preview.png" alt="Music client preview">
+    <p>It currently only supports Spotify, doesn't display the album cover and has many hardcoded
+      values but I plan on extending it during the semester.</p>
+    <h3>Competitive Programming</h3>
+    <p>Since my second semester in college I've tried to improve my programming abilities
+      through competitive programming, and I'm currently participating in Mexico's ICPC contest.</p>
+    <p>I upload everything I do to a repo on my GitHub,
+      <a href="https://github.com/MarioJim/CompetitiveProgramming" target="_blank">
+        you can find it here.
+      </a>
+    </p>
+
+    <h2>Pictures about me</h2>
+    <div id="gallery" class="splide">
+      <div class="splide__track">
+        <ul class="splide__list">
+          <li
+            class="splide__slide">
+            <div>
+              <div class="carrousel-img"
+                   style="background-image: url('./images/family.jpg')"></div>
+              <p class="carrousel-footer">Me and my family on my mom's birthday</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div>
+              <div class="carrousel-img"
+                   style="background-image: url('images/chuchis.jpg')"></div>
+              <p class="carrousel-footer">Susanita, my chihuahua</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div>
+              <div class="carrousel-img"
+                   style="background-image: url('./images/chuchisAndDad.jpg')"></div>
+              <p class="carrousel-footer">Susanita and my dad in San Cristóbal, Chiapas</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
 </html>
