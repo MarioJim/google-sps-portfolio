@@ -25,6 +25,7 @@ header p {
 
 #content {
     margin: auto;
+    padding: 0 50px;
     max-width: 1000px;
     display: grid;
     grid-template-columns: 30% 70%;
@@ -65,6 +66,10 @@ header p {
 
 #social-icons a {
     color: inherit;
+}
+
+#server-p {
+    text-align: center;
 }
 
 #about-me h2 {
