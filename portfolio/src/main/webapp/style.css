@@ -35,7 +35,7 @@ header p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 0;
+    padding-top: 20px;
 }
 
 #side-info > img {
@@ -70,6 +70,10 @@ header p {
 
 #server-p {
     text-align: center;
+}
+
+#about-me {
+    padding-left: 50px;
 }
 
 #about-me h2 {
@@ -107,4 +111,14 @@ header p {
     position: absolute;
     bottom: 12px;
     padding: 6px;
+}
+
+@media screen and (max-width: 800px) {
+    #content {
+        grid-template-columns: 100%;
+    }
+
+    #about-me {
+        padding-left: 0;
+    }
 }
