@@ -16,11 +16,18 @@ header {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 20px;
 }
 
 header p {
     font-size: 1.2em;
-    font-weight: 600;
+    font-weight: bold;
+}
+
+header a {
+    text-decoration: none;
+    color: inherit;
+    font-size: 1.2em;
 }
 
 #content {
