@@ -1,0 +1,49 @@
+#content {
+    max-width: 800px;
+    grid-template-columns: 100%;
+    padding: 20px;
+}
+
+form {
+    margin: 50px 10%;
+    display: grid;
+    grid-template-columns: 40% 60%;
+    align-items: center;
+    justify-content: center;
+}
+
+form label {
+    font-weight: bold;
+}
+
+#recommendation {
+    height: 60px;
+    font-family: sans-serif;
+}
+
+#send-comment-btn {
+    grid-column: 1/3;
+    width: 100px;
+    margin: 20px auto 0;
+    font-size: 16px;
+}
+
+#comments-container div {
+    margin-bottom: 25px;
+    padding: 0 30px;
+}
+
+#comments-container h2 {
+    margin: 0;
+    display: inline-block;
+}
+
+.comment-date {
+    margin: 0 20px;
+    display: inline-block;
+}
+
+.comment-content {
+    margin: 0;
+    text-align: justify;
+}
