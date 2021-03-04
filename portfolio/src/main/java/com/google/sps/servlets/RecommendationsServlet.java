@@ -22,6 +22,7 @@ public class RecommendationsServlet extends HttpServlet {
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String jsonArray = new Gson().toJson(recommendations);
     resp.setContentType("application/json;");
+    resp.setCharacterEncoding("UTF-8");
     resp.getWriter().println(jsonArray);
   }
 
