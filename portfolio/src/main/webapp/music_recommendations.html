@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Mario Jiménez's music recommendations">
+  <title>Music Recommendations</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/music_recommendations.css">
+</head>
+<body>
+<header>
+  <p>recommend me some music!</p>
+</header>
+<div id="content">
+  <form action="/recommendations" method="POST">
+    <label for="user">Username</label>
+    <input type="text" id="user" name="user"/>
+    <label for="recommendation">What should I listen to?</label>
+    <textarea id="recommendation" name="recommendation"></textarea>
+    <button type="submit" id="send-comment-btn">Send</button>
+  </form>
+  <div id="comments-container"></div>
+</div>
+<script src="js/music_recommendations.js"></script>
+</body>
+</html>
