@@ -1,3 +1,8 @@
+#content {
+    max-width: 1000px;
+    grid-template-columns: 30% 70%;
+}
+
 #side-info {
     display: flex;
     flex-direction: column;
