@@ -37,8 +37,7 @@ const renderChart = (languagesList) => {
 
 Promise.all([
   google.charts.load('current', { packages: ['corechart'] }),
-  fetch('/github-languages?user=MarioJim', { method: 'POST' })
-      .then(resp => resp.json()),
+  fetch('/github-languages').then(resp => resp.json()),
 ]).then(([_, languagesList]) => {
   renderChart(languagesList);
   document.getElementById('usernameForm').style.display = 'block';
