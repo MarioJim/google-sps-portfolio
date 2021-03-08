@@ -1,1 +1,4 @@
 runtime: java11
+
+env_variables:
+  GCP_SECRETS_ENABLED: true
