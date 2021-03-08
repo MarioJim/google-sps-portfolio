@@ -7,6 +7,7 @@
   <title>Mario's Portfolio</title>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/languages.css">
 </head>
 <body>
 <header>
@@ -15,9 +16,16 @@
   <a href="music_recommendations.html">recommend me some music!</a>
 </header>
 <div id="content">
-  <h1 style="text-align: center">My top programming languages</h1>
-  <h2 id="loading" style="text-align: center">loading...</h2>
-  <div id="chart" style="height: 60vh"></div>
+  <h1 id="title">My top programming languages</h1>
+  <h2 id="loading">loading...</h2>
+  <div id="chart"></div>
+  <form id="usernameForm">
+    <h3>Try it out with your GitHub username!</h3>
+    <p id="error-msg">Error fetching languages for that username, try with another one!</p>
+    <label for="username">Username</label>
+    <input type="text" id="username"/>
+    <button>Fetch languages!</button>
+  </form>
 </div>
 <script src="js/languages.js"></script>
 </body>

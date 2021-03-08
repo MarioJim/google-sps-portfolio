@@ -1,0 +1,19 @@
+* {
+    text-align: center;
+}
+
+#chart {
+    height: 60vh;
+}
+
+h3 {
+    margin: 10px;
+}
+
+#usernameForm {
+    display: none;
+}
+
+#error-msg {
+    margin: 10px;
+}

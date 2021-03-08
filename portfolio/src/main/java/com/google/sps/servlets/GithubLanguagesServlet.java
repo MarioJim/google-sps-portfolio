@@ -4,9 +4,8 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.Period;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import javax.servlet.annotation.WebServlet;
@@ -23,14 +22,9 @@ import com.google.sps.models.Repository;
 
 @WebServlet("/github-languages")
 public class GithubLanguagesServlet extends HttpServlet {
-  private static final String graphqlQuery = "{\"query\":\"{viewer {repositories(isFork: false, first: 100) {nodes {databaseId languages(first: 10) {edges {size node {color name}}}}}}}\"}";
-
   private static final HashSet<Long> excludedRepos = new HashSet<>();
 
   private final String authorizationSecret;
-
-  private String lastResponse;
-  private Instant lastResponseTime;
 
   public GithubLanguagesServlet() throws IOException {
     // Init excludedRepos
@@ -52,28 +46,34 @@ public class GithubLanguagesServlet extends HttpServlet {
   }
 
   @Override
-  protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-    resp.setContentType("application/json");
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    String username = req.getParameter("user");
 
-    // If it isn't the first time calling this and the last response was less than a day before now
-    if (lastResponseTime != null && lastResponseTime.plus(Period.ofDays(1)).isAfter(Instant.now())) {
-      System.out.println("Answered /github-langs with cache");
-      resp.getWriter().println(lastResponse);
-      return;
-    }
-
-    JsonArray repositories = fetchGithubLanguagesData();
+    String query = createQuery(username);
+    JsonArray repositories = fetchGithubLanguagesData(query);
     HashMap<String, ProgrammingLanguage> languagesMap = parseAndAccumulateLanguages(repositories);
     List<ProgrammingLanguage> languages = sortLanguagesBySize(languagesMap);
 
-    // Send list as json
-    lastResponse = new Gson().toJson(languages);
-    resp.getWriter().println(lastResponse);
-    lastResponseTime = Instant.now();
-    System.out.println("Answered /github-langs with fresh data, on " + lastResponseTime.toString());
+    resp.setContentType("application/json");
+    resp.getWriter().println(new Gson().toJson(languages));
+    System.out.printf("Called /github-languages with username \"%s\"\n", username);
   }
 
-  private JsonArray fetchGithubLanguagesData() throws IOException {
+  private String createQuery(String username) throws IOException {
+    Pattern usernamePattern = Pattern.compile("^[a-z0-9-]*$", Pattern.CASE_INSENSITIVE);
+    if (!usernamePattern.matcher(username).find())
+      throw new IOException("Username not valid");
+
+    String graphqlQuery = String.format(
+        "{user(login: \"%s\") {repositories(isFork: false, first: 50) {nodes {databaseId languages(first: 5) {edges {size node {color name}}}}}}}",
+        username
+    );
+    JsonObject query = new JsonObject();
+    query.addProperty("query", graphqlQuery);
+    return new Gson().toJson(query);
+  }
+
+  private JsonArray fetchGithubLanguagesData(String graphqlQuery) throws IOException {
     URL url = new URL("https://api.github.com/graphql");
     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("POST");
@@ -95,9 +95,13 @@ public class GithubLanguagesServlet extends HttpServlet {
 
     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
     JsonObject object = new Gson().fromJson(reader, JsonObject.class);
+
+    if (object.getAsJsonObject("data").getAsJsonObject("user").isJsonNull())
+      throw new IOException("User not found");
+
     return object
         .getAsJsonObject("data")
-        .getAsJsonObject("viewer")
+        .getAsJsonObject("user")
         .getAsJsonObject("repositories")
         .getAsJsonArray("nodes");
   }
