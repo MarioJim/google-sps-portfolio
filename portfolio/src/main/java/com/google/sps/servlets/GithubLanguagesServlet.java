@@ -1,37 +1,30 @@
 package com.google.sps.servlets;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.cloud.secretmanager.v1.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.sps.models.ProgrammingLanguage;
 import com.google.sps.models.Repository;
+import com.google.sps.services.GitHubGraphQLAPI;
+
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @WebServlet("/github-languages")
 public class GithubLanguagesServlet extends HttpServlet {
-  private static final String graphqlQuery = "{%s {repositories(isFork: false, first: 50) {nodes {databaseId languages(first: 5) {edges {size node {color name}}}}}}}";
-
-  private final String authorizationSecret;
+  private final GitHubGraphQLAPI githubApi;
 
   public GithubLanguagesServlet() throws IOException {
-    try (SecretManagerServiceClient client = SecretManagerServiceClient.create()) {
-      SecretVersionName secretVersionName = SecretVersionName.of("mjimenezvizcaino-sps-spring21", "github_graphql_api_key", "1");
-      AccessSecretVersionResponse response = client.accessSecretVersion(secretVersionName);
-      authorizationSecret = response.getPayload().getData().toStringUtf8();
-    }
+    githubApi = new GitHubGraphQLAPI();
   }
 
   @Override
@@ -46,9 +39,8 @@ public class GithubLanguagesServlet extends HttpServlet {
     excludedRepos.add(291279859L); // KevinTMtz/HackMTY2020
     excludedRepos.add(339570034L); // MarioJim/google-sps-portfolio
 
-    String query = createQuery("viewer");
-    JsonArray repositories = fetchGithubLanguagesData(query)
-        .getAsJsonObject("data")
+    String query = githubApi.createLanguagesQuery("viewer");
+    JsonArray repositories = githubApi.fetchGraphQLQuery(query)
         .getAsJsonObject("viewer")
         .getAsJsonObject("repositories")
         .getAsJsonArray("nodes");
@@ -63,63 +55,17 @@ public class GithubLanguagesServlet extends HttpServlet {
   protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
     String username = req.getParameter("user");
 
-    String query = createQueryFromUsername(username);
-    JsonObject data = fetchGithubLanguagesData(query);
-    if (data.getAsJsonObject("data").getAsJsonObject("user").isJsonNull())
+    String query = githubApi.createLanguagesQueryFromUsername(username);
+    JsonObject userData = githubApi.fetchGraphQLQuery(query).getAsJsonObject("user");
+    if (userData.isJsonNull())
       throw new IOException("User not found");
 
-    JsonArray repositories = data
-        .getAsJsonObject("data")
-        .getAsJsonObject("user")
-        .getAsJsonObject("repositories")
-        .getAsJsonArray("nodes");
+    JsonArray repositories = userData.getAsJsonObject("repositories").getAsJsonArray("nodes");
     HashMap<String, ProgrammingLanguage> languagesMap = parseAndAccumulateLanguages(repositories, new HashSet<>());
     List<ProgrammingLanguage> languages = sortLanguagesBySize(languagesMap);
 
     resp.setContentType("application/json");
     resp.getWriter().println(new Gson().toJson(languages));
-  }
-
-  private String createQueryFromUsername(String username) throws IOException {
-    Pattern usernamePattern = Pattern.compile("^[a-z0-9-]*$", Pattern.CASE_INSENSITIVE);
-    if (!usernamePattern.matcher(username).find())
-      throw new IOException("Username not valid");
-
-    return createQuery(String.format("user(login: \"%s\")", username));
-  }
-
-  private String createQuery(String userPart) {
-    String graphqlQuery = String.format(
-        "{%s {repositories(isFork: false, first: 50) {nodes {databaseId languages(first: 5) {edges {size node {color name}}}}}}}",
-        userPart
-    );
-    JsonObject query = new JsonObject();
-    query.addProperty("query", graphqlQuery);
-    return new Gson().toJson(query);
-  }
-
-  private JsonObject fetchGithubLanguagesData(String query) throws IOException {
-    URL url = new URL("https://api.github.com/graphql");
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-    connection.setRequestMethod("POST");
-    connection.setRequestProperty("Content-Type", "application/json");
-    connection.setRequestProperty("authorization", authorizationSecret);
-
-    connection.setDoOutput(true);
-    OutputStream outStream = connection.getOutputStream();
-    OutputStreamWriter outStreamWriter = new OutputStreamWriter(outStream, StandardCharsets.UTF_8);
-    outStreamWriter.write(query);
-    outStreamWriter.flush();
-    outStreamWriter.close();
-    outStream.close();
-
-    connection.connect();
-
-    if (connection.getResponseCode() != HttpURLConnection.HTTP_OK)
-      throw new IOException("GitHub answered with an " + connection.getResponseCode() + " error.");
-
-    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-    return new Gson().fromJson(reader, JsonObject.class);
   }
 
   private HashMap<String, ProgrammingLanguage> parseAndAccumulateLanguages(JsonArray repositories, HashSet<Long> excludedRepos) {
